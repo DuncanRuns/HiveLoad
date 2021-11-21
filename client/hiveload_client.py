@@ -7,6 +7,7 @@ import json
 import os
 import time
 import traceback
+import shutil
 
 minecraftPath = ""
 running = False
@@ -22,6 +23,7 @@ def resource_path(relative_path):
     except Exception:
         base_path = os.path.abspath(".")
     return os.path.join(base_path, relative_path)
+
 
 def isSinglePlayerOpen() -> bool:
     window = win32gui.GetForegroundWindow()
@@ -43,8 +45,12 @@ def runMacro():
                     attemptsFile.close()
 
                 worldName = "Speedrun #"+attempts
+                
+                shutil.make_archive(worldName,"zip",os.path.join(savesPath,worldName))
 
-                upload(worldName, savesPath)
+                upload(worldName+".zip","")
+                
+                os.remove(worldName+".zip")
 
                 with open("done", "w") as doneFile:
                     doneFile.close()
