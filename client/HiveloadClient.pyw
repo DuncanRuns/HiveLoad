@@ -2,12 +2,12 @@ from threading import Thread
 from world_upload import upload
 from win32 import win32gui
 import pygame
-import global_hotkeys
 import json
 import os
 import time
 import traceback
 import shutil
+import tkinter as tk
 
 minecraftPath = ""
 running = False
@@ -31,7 +31,7 @@ def isSinglePlayerOpen() -> bool:
     return " - Singleplayer" in text and "Minecraft" in text
 
 
-def runMacro():
+def runMacro(*x):
     global running, minecraftPath, highSound, lowSound, uploadingSound
     if not running:
         if not isSinglePlayerOpen():
@@ -53,9 +53,11 @@ def runMacro():
                 os.remove(worldName+".zip")
 
                 with open("done", "w") as doneFile:
+                    doneFile.write("omg how did you find this epic secret omg")
                     doneFile.close()
 
                 upload("done", "")
+                os.remove("done")
 
             except:
                 print("Failed")
@@ -71,7 +73,6 @@ if __name__ == "__main__":
         jsonDict = json.load(jsonFile)
         jsonFile.close()
     minecraftPath = jsonDict["path"]
-    hotkey = jsonDict["hotkey"]
 
     pygame.init()
     pygame.mixer.init()
@@ -83,11 +84,12 @@ if __name__ == "__main__":
     highSound.set_volume(0.1)
     lowSound.set_volume(0.1)
     uploadingSound.set_volume(0.1)
-
-    global_hotkeys.register_hotkeys([
-        [hotkey, runMacro, None]
-    ])
-    global_hotkeys.start_checking_hotkeys()
-
-    while True:
-        time.sleep(1000)
+    
+    
+    root = tk.Tk()
+    root.title("Hiveload Client")
+    root.resizable(0,0)
+    root.wm_attributes("-topmost",True)
+    tk.Label(root,text="Hiveload Client™\nPress the button to upload your latest world.\nMake sure you are not in the world when uploading.",anchor=tk.CENTER).grid(row=0,column=0,padx=10,pady=5)
+    tk.Button(root,command=runMacro,text="Upload World").grid(row=1,column=0,padx=0,pady=5)
+    root.mainloop()
