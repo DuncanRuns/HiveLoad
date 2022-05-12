@@ -121,3 +121,7 @@ dmypy.json
 *.gz
 client/done
 *.sfk
+
+*.bat
+*test*
+server/versions/

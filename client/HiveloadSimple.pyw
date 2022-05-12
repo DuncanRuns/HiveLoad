@@ -31,6 +31,11 @@ def isSinglePlayerOpen() -> bool:
     return " - Singleplayer" in text and "Minecraft" in text
 
 
+def getSimple(minecraftPath):
+    for name in os.listdir(minecraftPath):
+        if os.path.isdir(os.path.join(minecraftPath,name)):
+            return name
+
 def runMacro(*x):
     global running, minecraftPath, highSound, lowSound, uploadingSound
     if not running:
@@ -38,23 +43,22 @@ def runMacro(*x):
             Thread(target=uploadingSound.play).start()
             running = True
             try:
-                savesPath = os.path.join(minecraftPath, "saves")
-
-                with open(os.path.join(minecraftPath, "attempts.txt"), "r") as attemptsFile:
-                    attempts = attemptsFile.read().rstrip()
-                    attemptsFile.close()
-
-                worldName = "Speedrun #"+attempts
                 
-                shutil.make_archive(worldName,"zip",os.path.join(savesPath,worldName))
+                worldName = getSimple(minecraftPath)
+                
+                if worldName is None:
+                    raise
+                
+                shutil.make_archive(worldName,"zip",os.path.join(minecraftPath,worldName))
 
                 upload(worldName+".zip","")
                 
                 os.remove(worldName+".zip")
 
                 with open("done", "w") as doneFile:
-                    doneFile.write("omg how did you find this epic secret omg")
                     doneFile.close()
+                
+                shutil.rmtree(os.path.join(minecraftPath,worldName))
 
                 upload("done", "")
                 os.remove("done")
