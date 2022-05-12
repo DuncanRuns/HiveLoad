@@ -41,7 +41,7 @@ def setup_jars():
             "world/level.dat")["Data"]["Version"]["Name"].value
         print("World version is", mc_version)
         shutil.copytree(os.path.join(
-            os.getcwd(), "versions", mc_version), os.getcwd(), dirs_exist_ok=True)
+            os.getcwd(), "sversions", mc_version), os.getcwd(), dirs_exist_ok=True)
     except:
         traceback.print_exc()
         print("Failed to get server files for minecraft version.")
