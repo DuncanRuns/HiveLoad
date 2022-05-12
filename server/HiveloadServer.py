@@ -30,7 +30,7 @@ def delete_world() -> None:
     shutil.rmtree("world")
 
 
-# Check version from level.dat, setup
+# Clear version related files, check version from level.dat, copy from versions folder
 def setup_jars():
     [shutil.rmtree(i) for i in ["mods",
                                 "libraries"] if os.path.isdir(i)]
@@ -39,6 +39,7 @@ def setup_jars():
     try:
         mc_version = nbt.read_from_nbt_file(
             "world/level.dat")["Data"]["Version"]["Name"].value
+        print("World version is", mc_version)
         shutil.copytree(os.path.join(
             os.getcwd(), "versions", mc_version), os.getcwd(), dirs_exist_ok=True)
     except:
