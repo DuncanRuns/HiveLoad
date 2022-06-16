@@ -125,3 +125,5 @@ client/done
 *.bat
 *test*
 server/versions/
+server/icons/
+server/server-icon.png

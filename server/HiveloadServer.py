@@ -5,6 +5,7 @@ ENABLE_WL = True
 
 
 def set_random_icon() -> None:
+    print("Setting random icon...")
     if os.path.isfile("server-icon.png"):
         os.remove("server-icon.png")
     icons = [i for i in os.listdir("icons")]
@@ -14,7 +15,7 @@ def set_random_icon() -> None:
 
 
 def enable_whitelist() -> None:
-    print("Re-enabling whitelist")
+    print("Re-enabling whitelist...")
     with open("server.properties", "r") as prop_file:
         text = prop_file.read()
         prop_file.close()
@@ -103,6 +104,7 @@ def main():
     done_path = os.path.join(input_path, "done")
 
     while True:
+        time.sleep(1)
         if os.path.isdir("icons"):
             set_random_icon()
         if os.path.isdir("world"):
