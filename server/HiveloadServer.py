@@ -1,7 +1,7 @@
 import os, time, shutil, json, traceback
 import python_nbt.nbt as nbt
 
-enableWL = True
+ENABLE_WL = True
 
 
 def enable_whitelist() -> None:
@@ -16,6 +16,7 @@ def enable_whitelist() -> None:
 
 
 def clear_input_folder(input_path: str) -> None:
+    """No longer in use"""
     print("Removing extra worlds...")
     for name in os.listdir(input_path):
         rm_path = os.path.join(input_path, name)
@@ -49,7 +50,6 @@ def setup_jars():
 
 def copy_and_run(done_path: str, input_path: str, command: str) -> None:
     print("Copying world and running...")
-    os.remove(done_path)
     try:
         world_path = os.path.join(input_path, os.listdir(input_path)[0])
         if world_path.endswith(".zip"):
@@ -69,6 +69,20 @@ def copy_and_run(done_path: str, input_path: str, command: str) -> None:
         traceback.print_exc()
 
 
+def wait_for_done_file(done_path: str) -> None:
+    print("Waiting for done file...")
+    while not os.path.isfile(done_path):
+        time.sleep(1)
+    os.remove(done_path)
+
+
+def has_queued_world(input_path: str) -> bool:
+    for name in os.listdir(input_path):
+        if not name.lower().endswith(".hld"):
+            return True
+    return False
+
+
 def main():
 
     with open("hiveload.json", "r") as jsonFile:
@@ -82,12 +96,10 @@ def main():
     while True:
         if os.path.isdir("world"):
             delete_world()
-        if enableWL:
+        if ENABLE_WL:
             enable_whitelist()
-        clear_input_folder(input_path)
-        print("CHECKING")
-        while not os.path.isfile(os.path.join(input_path, "done")):
-            time.sleep(1)
+        if not has_queued_world(input_path):
+            wait_for_done_file(done_path)
         copy_and_run(done_path, input_path, command)
 
 
