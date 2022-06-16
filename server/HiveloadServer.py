@@ -1,7 +1,16 @@
-import os, time, shutil, json, traceback
+import os, time, shutil, json, traceback, random
 import python_nbt.nbt as nbt
 
 ENABLE_WL = True
+
+
+def set_random_icon() -> None:
+    if os.path.isfile("server-icon.png"):
+        os.remove("server-icon.png")
+    icons = [i for i in os.listdir("icons")]
+    if icons:
+        choice = random.choice(icons)
+        shutil.copyfile(os.path.join("icons", choice), "server-icon.png")
 
 
 def enable_whitelist() -> None:
@@ -94,6 +103,8 @@ def main():
     done_path = os.path.join(input_path, "done")
 
     while True:
+        if os.path.isdir("icons"):
+            set_random_icon()
         if os.path.isdir("world"):
             delete_world()
         if ENABLE_WL:
