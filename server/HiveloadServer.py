@@ -68,12 +68,10 @@ def copy_and_run(done_path: str, input_path: str, command: str) -> None:
             os.mkdir(world_path)
             shutil.unpack_archive(world_path + ".zip", world_path)
         shutil.copytree(world_path, "world")
-        for name in os.listdir(input_path):
-            rm_path = os.path.join(input_path, name)
-            if(os.path.isfile(rm_path)):
-                os.remove(rm_path)
-            else:
-                shutil.rmtree(rm_path)
+        if(os.path.isfile(world_path)):
+            os.remove(world_path)
+        else:
+            shutil.rmtree(world_path)
         setup_jars()
         os.system(command)
     except:
