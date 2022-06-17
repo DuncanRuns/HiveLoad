@@ -62,7 +62,7 @@ def setup_jars():
 def copy_and_run(input_path: str, command: str) -> None:
     print("Copying world and running...")
     try:
-        world_path = get_any_world(input_path)
+        world_path = get_first_world(input_path)
         if world_path.endswith(".zip"):
             world_path = world_path[:-4]
             os.mkdir(world_path)
@@ -86,8 +86,10 @@ def wait_for_done_file(done_path: str) -> None:
     os.remove(done_path)
 
 
-def get_any_world(input_path: str) -> Union[None, str]:
-    for name in os.listdir(input_path):
+def get_first_world(input_path: str) -> Union[None, str]:
+    files = os.listdir()
+    files.sort(key=lambda x: os.path.getmtime(x))
+    for name in files:
         if name != "done" and not name.lower().endswith(".hld"):
             return os.path.join(input_path, name)
 
@@ -110,7 +112,7 @@ def main():
             delete_world()
         if ENABLE_WL:
             enable_whitelist()
-        if get_any_world(input_path) is None:
+        if get_first_world(input_path) is None:
             wait_for_done_file(done_path)
         copy_and_run(input_path, command)
 
