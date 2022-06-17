@@ -59,7 +59,7 @@ def setup_jars():
         print("Failed to get server files for minecraft version.")
 
 
-def copy_and_run(done_path: str, input_path: str, command: str) -> None:
+def copy_and_run(input_path: str, command: str) -> None:
     print("Copying world and running...")
     try:
         world_path = get_any_world(input_path)
@@ -67,8 +67,9 @@ def copy_and_run(done_path: str, input_path: str, command: str) -> None:
             world_path = world_path[:-4]
             os.mkdir(world_path)
             shutil.unpack_archive(world_path + ".zip", world_path)
+            os.remove(world_path + ".zip")
         shutil.copytree(world_path, "world")
-        if(os.path.isfile(world_path)):
+        if os.path.isfile(world_path):
             os.remove(world_path)
         else:
             shutil.rmtree(world_path)
@@ -111,7 +112,7 @@ def main():
             enable_whitelist()
         if get_any_world(input_path) is None:
             wait_for_done_file(done_path)
-        copy_and_run(done_path, input_path, command)
+        copy_and_run(input_path, command)
 
 
 if __name__ == "__main__":
