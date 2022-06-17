@@ -60,6 +60,8 @@ def setup_jars():
 
 
 def copy_and_run(input_path: str, command: str) -> None:
+    if os.path.isfile("done"):
+        os.remove("done")
     print("Copying world and running...")
     try:
         world_path = get_first_world(input_path)
