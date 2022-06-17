@@ -1,4 +1,5 @@
 import os, time, shutil, json, traceback, random
+from typing import Union
 import python_nbt.nbt as nbt
 
 ENABLE_WL = True
@@ -61,7 +62,7 @@ def setup_jars():
 def copy_and_run(done_path: str, input_path: str, command: str) -> None:
     print("Copying world and running...")
     try:
-        world_path = os.path.join(input_path, os.listdir(input_path)[0])
+        world_path = get_any_world(input_path)
         if world_path.endswith(".zip"):
             world_path = world_path[:-4]
             os.mkdir(world_path)
@@ -86,11 +87,10 @@ def wait_for_done_file(done_path: str) -> None:
     os.remove(done_path)
 
 
-def has_queued_world(input_path: str) -> bool:
+def get_any_world(input_path: str) -> Union[None, str]:
     for name in os.listdir(input_path):
-        if not name.lower().endswith(".hld"):
-            return True
-    return False
+        if name != "done" and not name.lower().endswith(".hld"):
+            return os.path.join(input_path, name)
 
 
 def main():
@@ -111,7 +111,7 @@ def main():
             delete_world()
         if ENABLE_WL:
             enable_whitelist()
-        if not has_queued_world(input_path):
+        if get_any_world(input_path) is None:
             wait_for_done_file(done_path)
         copy_and_run(done_path, input_path, command)
 
