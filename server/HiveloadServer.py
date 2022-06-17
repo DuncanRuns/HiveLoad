@@ -89,10 +89,11 @@ def wait_for_done_file(done_path: str) -> None:
 
 
 def get_first_world(input_path: str) -> Union[None, str]:
-    files = [os.path.join(input_path, name) for name in os.listdir(input_path)]
+    files = [os.path.join(input_path, name)
+             for name in os.listdir(input_path) if name != "done"]
     files.sort(key=lambda x: os.path.getmtime(x))
     for file_path in files:
-        if file_path != "done" and not file_path.lower().endswith(".hld"):
+        if not file_path.lower().endswith(".hld"):
             return file_path
 
 
