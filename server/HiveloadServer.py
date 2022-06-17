@@ -117,7 +117,8 @@ def main():
             enable_whitelist()
         if get_first_world(input_path) is None:
             wait_for_done_file(done_path)
-        copy_and_run(input_path, command)
+        if get_first_world(input_path):
+            copy_and_run(input_path, command)
 
 
 if __name__ == "__main__":
