@@ -1,8 +1,6 @@
-import os, time, shutil, json, traceback, random
+import os, time, shutil, traceback, random, basic_options, subprocess
 from typing import Union
 import python_nbt.nbt as nbt
-
-ENABLE_WL = True
 
 
 def set_random_icon() -> None:
@@ -59,7 +57,7 @@ def setup_jars():
         print("Failed to get server files for minecraft version.")
 
 
-def copy_and_run(input_path: str, command: str) -> None:
+def copy_and_run(input_path: str, command: str, world_location: str) -> None:
     if os.path.isfile("done"):
         os.remove("done")
     print("Copying world and running...")
@@ -70,7 +68,7 @@ def copy_and_run(input_path: str, command: str) -> None:
             os.mkdir(world_path)
             shutil.unpack_archive(world_path + ".zip", world_path)
             os.remove(world_path + ".zip")
-        shutil.copytree(world_path, "world")
+        shutil.copytree(world_path, world_location)
         if os.path.isfile(world_path):
             os.remove(world_path)
         else:
@@ -81,10 +79,25 @@ def copy_and_run(input_path: str, command: str) -> None:
         traceback.print_exc()
 
 
-def wait_for_done_file(done_path: str) -> None:
+def wait_for_done_file(done_path: str, waiting_command: str, waiting_dir: str) -> None:
+    process_opened = False
+    if waiting_command != "" and not os.path.isfile(done_path):
+        print("Starting waiting command...")
+        process_opened = True
+        process = subprocess.Popen(
+            waiting_command, stdin=subprocess.PIPE, cwd=waiting_dir, shell=True)
+
     print("Waiting for done file...")
     while not os.path.isfile(done_path):
         time.sleep(1)
+
+    if process_opened:
+        print("Attempting to stop server...")
+        process.stdin.write("stop".encode())
+        process.stdin.flush()
+        print("Stop command sent...")
+        process.communicate()
+
     os.remove(done_path)
 
 
@@ -97,28 +110,44 @@ def get_first_world(input_path: str) -> Union[None, str]:
             return file_path
 
 
+class Options(basic_options.BasicOptions):
+    def set_defaults(self) -> None:
+        self.input = "input"
+        self.auto_whitelist = True
+
+        self.world_location = "world"
+        self.command = "java -jar fabric-server-launch.jar nogui"
+
+        self.waiting_command = ""
+        self.waiting_dir = "waiting"
+
+
 def main():
 
-    with open("hiveload.json", "r") as jsonFile:
-        jsonDict = json.load(jsonFile)
-        jsonFile.close()
+    options = Options().try_load_file("hiveload.json")
+    options.save_file("hiveload.json")
 
-    input_path = jsonDict["input"]
-    command = jsonDict["command"]
-    done_path = os.path.join(input_path, "done")
+    done_path = os.path.join(options["input"], "done")
 
     while True:
         time.sleep(1)
+
         if os.path.isdir("icons"):
             set_random_icon()
+
         if os.path.isdir("world"):
             delete_world()
-        if ENABLE_WL:
+
+        if options["auto_whitelist"]:
             enable_whitelist()
-        if get_first_world(input_path) is None:
-            wait_for_done_file(done_path)
-        if get_first_world(input_path):
-            copy_and_run(input_path, command)
+
+        if get_first_world(options["input"]) is None:
+            wait_for_done_file(
+                done_path, options["waiting_command"], options["waiting_dir"])
+
+        if get_first_world(options["input"]):
+            copy_and_run(options["input"], options["command"],
+                         options["world_location"])
 
 
 if __name__ == "__main__":
